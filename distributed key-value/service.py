@@ -1,8 +1,4 @@
-import json
-import time
-import sys
-import fcntl
-import errno
+import json, time, sys, fcntl, errno, threading
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
 from flask import Flask, jsonify, request
@@ -25,6 +21,7 @@ def delete_task():
             f.truncate()
             json.dump(data, f)
             fcntl.flock(f, fcntl.LOCK_UN)
+        
 
 @app.route('/set', methods=['GET'])
 def set_value():
@@ -46,11 +43,11 @@ def set_value():
                 fcntl.flock(f, fcntl.LOCK_UN)
                 break
         except IOError as e:
-            # File is locked, wait for a short duration before trying again
             if e.errno == errno.EWOULDBLOCK:
-                time.sleep(0.1)  # Adjust the sleep duration as needed
+                time.sleep(0.1) 
 
     return jsonify({'message': 'Value set successfully', 'key': id, 'value': value, 'timeout': timeout_timestamp})
+
 
 @app.route('/get', methods=['GET'])
 def get():
@@ -62,7 +59,7 @@ def get():
                 fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
                 data = json.load(f)
 
-                print("After:", json.dumps(data, indent=2))  # Print the contents after loading
+                print("After:", json.dumps(data, indent=2)) 
 
                 if id not in data:
                     fcntl.flock(f, fcntl.LOCK_UN)
@@ -82,9 +79,9 @@ def get():
                         fcntl.flock(f, fcntl.LOCK_UN)
                         return jsonify({'error': 'Data not found'})
         except IOError as e:
-            # File is locked, wait for a short duration before trying again
             if e.errno == errno.EWOULDBLOCK:
                 time.sleep(0.1)
+
 
 @app.route('/delete', methods=['GET'])
 def delete():
@@ -109,6 +106,7 @@ def delete():
             if e.errno == errno.EWOULDBLOCK:
                 time.sleep(0.1)
 
+
 @app.route('/list', methods=['GET'])
 def list_data():
     while True:
@@ -118,9 +116,8 @@ def list_data():
                 data = json.load(f)
                 return jsonify(data)
         except IOError as e:
-            # File is locked, wait for a short duration before trying again
             if e.errno == errno.EWOULDBLOCK:
-                time.sleep(0.1)  # Adjust the sleep duration as needed
+                time.sleep(0.1) 
 
 if __name__ == '__main__':
    port = int(sys.argv[1]) if len(sys.argv) > 1 else 5000
