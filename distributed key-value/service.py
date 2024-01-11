@@ -25,7 +25,7 @@ def delete_task():
 
 @app.route('/set', methods=['GET'])
 def set_value():
-    id = request.args.get('id')
+    id = request.args.get('key')
     value = request.args.get('value')
     store_time = datetime.now()
     timeout = int(request.args.get('timeout'))
@@ -51,7 +51,7 @@ def set_value():
 
 @app.route('/get', methods=['GET'])
 def get():
-    id = request.args.get('id')
+    id = request.args.get('key')
 
     while True:
         try:
@@ -85,7 +85,7 @@ def get():
 
 @app.route('/delete', methods=['GET'])
 def delete():
-    id = request.args.get('id')
+    id = request.args.get('key')
 
     while True:
         try:
@@ -107,7 +107,7 @@ def delete():
                 time.sleep(0.1)
 
 
-@app.route('/list', methods=['GET'])
+@app.route('/all', methods=['GET'])
 def list_data():
     while True:
         try:
